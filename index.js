@@ -126,6 +126,22 @@ function errorLogger(options) {
     };
 }
 
+//From morgan
+/**
+ * Get request IP address.
+ *
+ * @private
+ * @param {IncomingMessage} req
+ * @return {string}
+ */
+
+function getip(req) {
+  return req.ip
+    || req._remoteAddress
+    || (req.connection && req.connection.remoteAddress)
+    || undefined;
+}
+
 //
 // ### function logger(options)
 // #### @options {Object} options to initialize the middleware.
@@ -153,6 +169,11 @@ function logger(options) {
 
 
         req._startTime = (new Date);
+        req._remoteAddress = getip(req); //From morgan
+        
+        req._logFields = {
+            remote_address : req._remoteAddress
+        };
 
         req._routeWhitelists = {
             req: [],
@@ -187,7 +208,9 @@ function logger(options) {
               var coloredStatusCode = chalk[statusColor](res.statusCode);
             }
 
-            var meta = {};
+            var meta = _.extend({
+                http_response_code : res.statusCode
+            }, req._logFields);
 
             if(options.meta !== false) {
               var bodyWhitelist, blacklist;
