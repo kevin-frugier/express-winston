@@ -214,15 +214,16 @@ function logger(options) {
               meta.responseTime = res.responseTime;
             }
 
+            var msg = null;
             if(options.expressFormat) {
-              var msg = chalk.grey(req.method+" "+req.url)+" "+chalk[statusColor](res.statusCode)+" "+chalk.grey(res.responseTime+"ms");
+              msg = chalk.grey(req.method+" "+req.url)+" "+chalk[statusColor](res.statusCode)+" "+chalk.grey(res.responseTime+"ms");
             } else {
               // Using mustache style templating
               _.templateSettings = {
                 interpolate: /\{\{(.+?)\}\}/g
               };
               var template = _.template(options.msg);
-              var msg = template({req: req, res: res});
+              msg = template({req: req, res: res});
             }
             // This is fire and forget, we don't want logging to hold up the request so don't wait for the callback
             options.winstonInstance.log(options.level, msg, meta);
